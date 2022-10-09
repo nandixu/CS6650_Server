@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="CS6650 archive">
+    <output-path>$PROJECT_DIR$/out/artifacts/CS6650_archive</output-path>
+    <root id="archive" name="CS6650 archive.war">
+      <element id="artifact" artifact-name="CS6650" />
+    </root>
+  </artifact>
+</component>

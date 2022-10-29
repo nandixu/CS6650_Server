@@ -6,8 +6,19 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import Sender.Sender;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
+
 @WebServlet(name = "SkierServlet", value = "/SkierServlet")
 public class SkierServlet extends HttpServlet {
+
+    private final static String RABBITMQ_IP_ADDRESS = "18.236.115.154";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("text/plain");
@@ -46,7 +57,7 @@ public class SkierServlet extends HttpServlet {
         // TODO: validate the request url path according to the API spec
         // urlPath  = "/1/seasons/2019/day/1/skier/123"
         // urlParts = [, 1, seasons, 2019, day, 1, skier, 123]
-        if (urlPath.length != 8) return false;
+        //if (urlPath.length != 8) return false;
         return true;
     }
 
@@ -77,11 +88,19 @@ public class SkierServlet extends HttpServlet {
             HashMap<String, String> skier = ProcessRandomSkierJSON(json_material);
 
             // print out POST info.
-//            res.getWriter().write("\nThis is a POST");
-//            for (Map.Entry<String, String> entry : skier.entrySet()) {
-//                res.getWriter().write("\n" + entry.getKey() +": " + entry.getValue());
-//            }
-//            res.getWriter().write("\nJSONfile:" + json_material);
+            res.getWriter().write("\nThis is a POST!");
+            for (Map.Entry<String, String> entry : skier.entrySet()) {
+                res.getWriter().write("\n" + entry.getKey() +": " + entry.getValue());
+            }
+            res.getWriter().write("\nJSON file:" + json_material);
+
+            //Send message to RabbitMQ
+            System.out.println("Sending messages to RMQ.");
+            try {
+                Send(json_material);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -129,6 +148,20 @@ public class SkierServlet extends HttpServlet {
         }
 
         return skier;
+    }
+
+    public static void Send(String JSON_material) throws Exception {
+        System.out.println("Creating factory");
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("18.236.115.154");
+        System.out.println("Creating connection");
+        try(Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel()){
+            channel.queueDeclare("hello2", false, false, false, null);
+            String message = "Hello World!";
+            channel.basicPublish("", "hello2", null, message.getBytes(StandardCharsets.UTF_8));
+            System.out.println(" [x] Sent '" + message + "'");
+        }
     }
 }
 

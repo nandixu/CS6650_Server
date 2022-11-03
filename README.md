@@ -3,6 +3,7 @@
 This is the server of CS6650 Assignment 1.
 
 Link to Client Repo: https://github.khoury.northeastern.edu/nandi/CS6650_Client.git
+Link to RMQ Reiceiver: https://github.khoury.northeastern.edu/nandi/CS6650_RMQ_Receiver.git
 
 ## SkierServlet
 This is a servlet that would do a brief process on the request sent by client, and generate response data. The current version supports doPost and doGet methods, a simple url validation method. Also, an init() method and send() method is added in Assignment2.

@@ -17,7 +17,31 @@ import java.util.concurrent.TimeoutException;
 @WebServlet(name = "SkierServlet", value = "/SkierServlet")
 public class SkierServlet extends HttpServlet {
 
-    private final static String RABBITMQ_IP_ADDRESS = "18.236.115.154";
+    private final static String RABBITMQ_IP_ADDRESS = "18.237.102.104";
+    private static ConnectionFactory factory = new ConnectionFactory();
+    private static Connection connection;
+    //private static Channel channel;
+
+    private final static String HELLO_WORLD = "Hello World";
+
+    @Override
+    public void init() {
+        factory.setHost(RABBITMQ_IP_ADDRESS);
+        try {
+            this.connection = factory.newConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+
+        //Create Channel
+//        try {
+//            channel = connection.createChannel();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -95,9 +119,8 @@ public class SkierServlet extends HttpServlet {
             res.getWriter().write("\nJSON file:" + json_material);
 
             //Send message to RabbitMQ
-            System.out.println("Sending messages to RMQ.");
             try {
-                Send(json_material);
+                Send();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -150,17 +173,14 @@ public class SkierServlet extends HttpServlet {
         return skier;
     }
 
-    public static void Send(String JSON_material) throws Exception {
-        System.out.println("Creating factory");
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("18.236.115.154");
-        System.out.println("Creating connection");
-        try(Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel()){
-            channel.queueDeclare("hello2", false, false, false, null);
-            String message = "Hello World!";
-            channel.basicPublish("", "hello2", null, message.getBytes(StandardCharsets.UTF_8));
-            System.out.println(" [x] Sent '" + message + "'");
+    public void Send() throws Exception {
+        try(Channel channel = connection.createChannel()){
+            channel.queueDeclare("hello", false, false, false, null);
+            String message = "Hello World";
+            channel.basicPublish("", "hello", null, message.getBytes(StandardCharsets.UTF_8));
+            //System.out.println(" [x] Sent '" + message + "'");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

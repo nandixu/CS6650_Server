@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 @WebServlet(name = "SkierServlet", value = "/SkierServlet")
 public class SkierServlet extends HttpServlet {
 
-    private final static String RABBITMQ_IP_ADDRESS = "18.237.102.104";
+    private final static String RABBITMQ_IP_ADDRESS = "35.89.140.129";
     private static ConnectionFactory factory = new ConnectionFactory();
     private static Connection connection;
     //private static Channel channel;
@@ -81,7 +81,7 @@ public class SkierServlet extends HttpServlet {
         // TODO: validate the request url path according to the API spec
         // urlPath  = "/1/seasons/2019/day/1/skier/123"
         // urlParts = [, 1, seasons, 2019, day, 1, skier, 123]
-        //if (urlPath.length != 8) return false;
+        if (urlPath.length != 8) return false;
         return true;
     }
 
@@ -120,7 +120,7 @@ public class SkierServlet extends HttpServlet {
 
             //Send message to RabbitMQ
             try {
-                Send();
+                Send(json_material);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -173,11 +173,10 @@ public class SkierServlet extends HttpServlet {
         return skier;
     }
 
-    public void Send() throws Exception {
+    public void Send(String json_material) throws Exception {
         try(Channel channel = connection.createChannel()){
             channel.queueDeclare("hello", false, false, false, null);
-            String message = "Hello World";
-            channel.basicPublish("", "hello", null, message.getBytes(StandardCharsets.UTF_8));
+            channel.basicPublish("", "hello", null, json_material.getBytes(StandardCharsets.UTF_8));
             //System.out.println(" [x] Sent '" + message + "'");
         } catch (IOException e) {
             e.printStackTrace();
